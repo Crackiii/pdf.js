@@ -2100,6 +2100,7 @@ if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
     "null",
     "http://mozilla.github.io",
     "https://mozilla.github.io",
+    "http://localhost:8888",
   ];
   validateFileURL = function (file) {
     if (file === undefined) {
@@ -2327,6 +2328,7 @@ function webViewerResetPermissions() {
 }
 
 function webViewerPageRendered({ pageNumber, timestamp, error }) {
+  var pageIndex = pageNumber - 1;
   // If the page is still visible when it has finished rendering,
   // ensure that the page number input loading indicator is hidden.
   if (pageNumber === PDFViewerApplication.page) {
@@ -2369,6 +2371,18 @@ function webViewerPageRendered({ pageNumber, timestamp, error }) {
       stats,
     });
   });
+
+  /*
+   * Vidy Code Goes here
+   */
+
+  window.postMessage(
+    {
+      type: "page:rendered",
+      page: { pageNumber, pageIndex },
+    },
+    "*"
+  );
 }
 
 function webViewerPageMode({ mode }) {

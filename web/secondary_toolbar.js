@@ -186,6 +186,10 @@ class SecondaryToolbar {
   }
 
   setPageNumber(pageNumber) {
+    /*
+      * Load the vidy links when each page is set
+    */
+    window.postMessage({type: 'lens:reload'}, "*");
     this.pageNumber = pageNumber;
     this._updateUIState();
   }

@@ -29,7 +29,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 var CMAP_URL = "../../node_modules/pdfjs-dist/cmaps/";
 var CMAP_PACKED = true;
 
-var DEFAULT_URL = "../../web/compressed.tracemonkey-pldi-09.pdf";
+var DEFAULT_URL = "../../web/welcome.pdf";
 var SEARCH_FOR = ""; // try 'Mozilla';
 
 var container = document.getElementById("viewerContainer");
