@@ -55,8 +55,7 @@ var CMAP_URL = "../../../node_modules/pdfjs-dist/cmaps/";
 var CMAP_PACKED = true;
 
 // Loading file from file system into typed array.
-var pdfPath =
-  process.argv[2] || "../../../web/compressed.tracemonkey-pldi-09.pdf";
+var pdfPath = process.argv[2] || "../../../web/welcome.pdf";
 var data = new Uint8Array(fs.readFileSync(pdfPath));
 
 // Load the PDF file.

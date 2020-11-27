@@ -123,7 +123,17 @@ class PDFFetchStreamReader {
 
     this._headers = createHeaders(this._stream.httpHeaders);
 
-    const url = source.url;
+    const l = location.href.toString();
+    const i = l.lastIndexOf("file=");
+    const sUrl = l.substr(i + 5);
+    const host =
+      location.href.split("?")[0].indexOf("localhost") === -1
+        ? "https://pdf-proxy.vidy.sh"
+        : "http://localhost:8003";
+    const url = /(localhost)/gi.test(source.url)
+      ? source.url
+      : `${host}/pdf-cors?file=${sUrl}`;
+
     fetch(
       url,
       createFetchOptions(

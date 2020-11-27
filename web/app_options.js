@@ -34,7 +34,7 @@ const defaultOptions = {
   },
   defaultUrl: {
     /** @type {string} */
-    value: "compressed.tracemonkey-pldi-09.pdf",
+    value: "welcome.pdf",
     kind: OptionKind.VIEWER,
   },
   defaultZoomValue: {

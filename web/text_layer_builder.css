@@ -20,12 +20,12 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
-  opacity: 0.2;
+  /* opacity: 0.2; */
   line-height: 1;
 }
 
 .textLayer > span {
-  color: transparent;
+  color: black;
   position: absolute;
   white-space: pre;
   cursor: text;
@@ -53,10 +53,6 @@
 
 .textLayer .highlight.selected {
   background-color: rgba(0, 100, 0, 1);
-}
-
-.textLayer ::selection {
-  background: rgba(0, 0, 255, 1);
 }
 
 .textLayer .endOfContent {

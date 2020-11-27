@@ -427,6 +427,259 @@ const CanvasExtraState = (function CanvasExtraStateClosure() {
   return CanvasExtraState;
 })();
 
+/*
+ * VIDY Code goes here - Start
+ */
+var CURRENT = null;
+var PREV = null;
+var allPagesStyles = {};
+var allElements = [];
+var IDX = 0;
+
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function () {
+    var context = this,
+      args = arguments;
+    var later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+
+window.addEventListener("message", ({ data }) => {
+  if (data.type === "page:rendered") {
+    const { pageIndex, pageNumber, pageStyles } = data.page;
+    const pageView = PDFViewerApplication.pdfViewer.getPageView(pageIndex);
+    const { div } = pageView;
+    if (!(pageNumber in allPagesStyles)) {
+      allPagesStyles[pageNumber] = {
+        styles: [...allElements],
+        mutationsObserver: new MutationObserver(args => {
+          applyStyles(div, allPagesStyles[pageNumber], pageIndex);
+        }).observe(div, {
+          childList: true,
+          subtree: true,
+        }),
+      };
+    }
+    allElements = [];
+    IDX = 0;
+    applyStyles(div, allPagesStyles[pageNumber], pageNumber);
+  }
+});
+
+const trimText = str => {
+  return str !== null && str !== undefined
+    ? str.trim().replace(/\s\s+/g, " ")
+    : str;
+};
+
+const toNumber = num => {
+  return parseFloat(num.replace("px", ""));
+};
+
+const haveTextContents = el => {
+  const next = el.nextSibling;
+  if (next && next.textContent.trim() === "") haveTextContents(next);
+  else if (next === null) return false;
+  else return true;
+};
+
+const getAllNextSiblings = node => {
+  let nodes = [node];
+  let current = node;
+  let next = node.nextElementSibling;
+  while (
+    next &&
+    (node.offsetTop === next.offsetTop ||
+      Math.abs(node.offsetTop - next.offsetTop) < 5)
+  ) {
+    nodes.push(next);
+    current = next;
+    next = next.nextElementSibling;
+  }
+  return nodes;
+};
+const alignHorizontally = (nodes, setAttrs) => {
+  for (let i = 0; i < nodes.length; i++) {
+    const current = nodes[i];
+    const currentBounds = current.getBoundingClientRect();
+    const next = nodes[i + 1] !== undefined ? nodes[i + 1] : null;
+    const nextBounds = next && next.getBoundingClientRect();
+    if (next !== null) {
+      next.style.left =
+        next.offsetLeft +
+        (current.offsetLeft + currentBounds.width - next.offsetLeft) +
+        "px";
+    }
+    if (setAttrs && next !== null) {
+      next.setAttribute(
+        "data-left",
+        parseFloat(next.style.left.replace("px", ""))
+      );
+      next.setAttribute("data-push", true);
+    }
+  }
+};
+
+const alignVertically = (current, setAtts) => {
+  const t = parseFloat(current.style.top.replace("px", ""));
+  current.style.top = t - current.offsetHeight / 2 + 3 + "px";
+  if (setAtts) {
+    current.setAttribute("data-styles-adjusted", true);
+    current.setAttribute("data-top", t);
+  }
+};
+
+const adjustStyles = div => {
+  let els = div.querySelectorAll("span");
+  for (let j = 0; j < els.length; j++) {
+    if (
+      //first two to check if the vidy link exists in the span el
+      els[j].children.length > 0 &&
+      els[j].children[0].classList.contains("vlink") &&
+      //to prevent looping through elements who styles are already adjusted
+      els[j].getAttribute("data-styles-adjusted") === null &&
+      //not dealing with rotated elements
+      !/(rotate)/gi.test(els[j].style.transform)
+    ) {
+      const current = els[j];
+      const nextEls = getAllNextSiblings(current);
+      const id = current.children[0].getAttribute("data-id");
+      const mo = new MutationObserver(_ => {
+        if (
+          current.children.length === 0 &&
+          nextEls.slice(1).every(_ => _.getAttribute("data-push") === "true") &&
+          current.getAttribute("data-styles-adjusted") === null
+        ) {
+          alignHorizontally(nextEls, false);
+          nextEls.forEach(_ => {
+            _.removeAttribute("data-push");
+            _.removeAttribute("data-left");
+          });
+        } else if (
+          current.children.length > 0 &&
+          nextEls.slice(1).every(_ => _.getAttribute("data-push") === "true")
+        ) {
+          alignHorizontally(nextEls, false);
+        } else if (
+          current.children.length === 0 &&
+          current.getAttribute("data-styles-adjusted") === "true" &&
+          current.getAttribute("data-top")
+        ) {
+          current.style.top =
+            parseFloat(current.getAttribute("data-top").replace("px", "")) +
+            "px";
+          current.removeAttribute("data-styles-adjusted");
+          current.removeAttribute("data-top");
+          alignHorizontally(nextEls, false);
+          mo.disconnect();
+        }
+      });
+      //observe the current specific element when any change is made to it
+      mo.observe(current, { childList: true, subtree: true });
+      alignHorizontally(nextEls, true);
+      if (
+        id !== null &&
+        id.indexOf("pending:") !== 0 &&
+        current.getAttribute("data-styles-adjusted") === null
+      ) {
+        alignVertically(current, true);
+      }
+    }
+  }
+};
+
+const isColliding = (rect1, rect2) => {
+  return !(
+    rect1.right < rect2.left ||
+    rect1.left > rect2.right ||
+    rect1.bottom < rect2.top ||
+    rect1.top > rect2.bottom
+  );
+};
+
+const applyStyles = (div, _allElementsText, pageNumber) => {
+  let els = div.querySelectorAll("span");
+  let currentEl = null;
+  els = [...els].filter(el => {
+    if (
+      el.getAttribute("data-traversed") === null &&
+      el.getAttribute("id") === null &&
+      el.classList.value === ""
+    ) {
+      return el;
+    }
+  });
+
+  for (let j = 0; j < els.length; j++) {
+    innerLoop: for (let i = j; i < _allElementsText.styles.length; i++) {
+      let colorAdded = false;
+      let elText = trimText(els[j].textContent);
+      if (/\s{3}/g.test(els[j].textContent.trim())) {
+        colorAdded = true;
+        elText = els[j].textContent
+          .split("  ")
+          .map(w => w.replace(/\s/g, ""))
+          .join(" ");
+        els[j].style.transform = els[j + 1] && els[j + 1].style.transform;
+        els[j].style.color = els[j + 1] && els[j + 1].style.color;
+      }
+      if (
+        elText === trimText(_allElementsText.styles[i].elText) &&
+        els[j - 1] !== undefined
+          ? trimText(els[j - 1].textContent)
+          : null === _allElementsText.styles[i].prevEl &&
+            j === _allElementsText.styles[i].IDX
+      ) {
+        if (
+          trimText(els[j].textContent) === "" ||
+          trimText(els[j].textContent) === ""
+        ) {
+          els[j].textContent = "";
+          break innerLoop;
+        }
+        els[j].textContent = elText;
+        if (!colorAdded) {
+          els[j].style.color = _allElementsText.styles[i].fontColor;
+        }
+        els[j].style.fontFamily = "Avenir Next"; //_allElementsText.styles[i].fontName;
+        els[j].style.fontWeight = _allElementsText.styles[i].fontWeightNumber;
+        els[j].setAttribute("data-traversed", true);
+        if (
+          els[j] &&
+          els[j + 1] &&
+          isColliding(
+            els[j].getBoundingClientRect(),
+            els[j + 1].getBoundingClientRect()
+          )
+        ) {
+          const current = els[j];
+          const next = els[j + 1];
+          const nextLeft = next.offsetLeft;
+          const l =
+            current.offsetLeft +
+            current.getBoundingClientRect().width -
+            nextLeft;
+
+          next.style.left = nextLeft + l + 2 + "px";
+        }
+        break innerLoop;
+      }
+    }
+  }
+  adjustStyles(div);
+};
+/*
+ * VIDY Code - End
+ */
+
 /**
  * @type {any}
  */
@@ -1788,8 +2041,13 @@ const CanvasGraphics = (function CanvasGraphicsClosure() {
         // file or if there isn't a font file so the fallback font is shown.
         if (this.contentVisible && (glyph.isInFont || font.missingFile)) {
           if (simpleFillText && !accent) {
-            // common case
-            ctx.fillText(character, scaledX, scaledY);
+            /*
+             * If no glyph is found, then draw the character through canvas
+             */
+            if (glyph.unicode == "" || glyph.unicode === "") {
+              // common case
+              ctx.fillText(character, scaledX - 5, scaledY + 5);
+            }
           } else {
             this.paintChar(character, scaledX, scaledY, patternTransform);
             if (accent) {
@@ -1818,6 +2076,54 @@ const CanvasGraphics = (function CanvasGraphicsClosure() {
         if (restoreNeeded) {
           ctx.restore();
         }
+      }
+      const el = glyphs
+        .map(char => char.unicode)
+        .join("")
+        .trim()
+        .toString();
+
+      if (el !== "" && el !== " ") {
+        if (CURRENT === null) {
+          CURRENT = el;
+        } else {
+          PREV = CURRENT;
+          CURRENT = el;
+        }
+      }
+      const fontWeights = [1];
+      if (fontWeights.length > 0) {
+        let fontVariations = {
+          Hairline: 100,
+          "Ultra Light": 200,
+          Light: 300,
+          Regular: 400,
+          Medium: 500,
+          "Semi Bold": 600,
+          Bold: 700,
+          "Extra Bold": 800,
+          Black: 900,
+          "Extra Black": 950,
+        };
+        let fWSum = fontWeights.reduce((a, b) => a + b);
+        let fW = Math.floor(fWSum / fontWeights.length);
+        let font = this.current.font.name.match(/[A-Z]*[^A-Z]+/g);
+        font.shift();
+        let fontWeightName = font.pop();
+        font = font.join(" ").replace("-", "");
+
+        if (IDX === 0) PREV = null;
+        let _elStyles = {
+          prevEl: PREV,
+          elText: CURRENT,
+          fontWeightCalculated: fW,
+          fontColor: this.current.fillColor,
+          fontName: font,
+          fontWeightNumber: fontVariations[fontWeightName],
+          fontWeightName,
+          IDX: IDX++,
+        };
+        allElements.push(_elStyles);
       }
       if (vertical) {
         current.y -= x;
