@@ -73,6 +73,10 @@ class Toolbar {
         element: options.presentationModeButton,
         eventName: "presentationmode",
       },
+      {
+        element: options.urlSearch,
+        eventName: "urlsearch",
+      },
       { element: options.download, eventName: "download" },
       { element: options.viewBookmark, eventName: null },
     ];

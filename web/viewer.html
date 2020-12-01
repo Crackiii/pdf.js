@@ -70,7 +70,8 @@ See https://github.com/adobe-type-tools/cmap-resources
       const script = document.createElement("script");
       script.type = "text/javascript";
       script.src =
-        location.origin.indexOf("localhost") !== -1
+        location.origin.indexOf("localhost") !== -1 ||
+        location.origin.indexOf("file://") !== -1
           ? "http://192.168.43.35:5000/embed.min.js"
           : "https://preview.vidy.sh/embed.min.js";
       head.appendChild(script);
@@ -226,11 +227,31 @@ See https://github.com/adobe-type-tools/cmap-resources
         </div>
         <!-- findbar -->
 
+        <div id="pdfURL" data-shown="false">
+          <form class="pdfURL" id="urlSubmit">
+            <input
+              type="url"
+              name="pdfURL"
+              placeholder="Past your URL"
+              required
+            />
+            <button type="submit">LOAD</button>
+          </form>
+        </div>
+
         <div
           id="secondaryToolbar"
           class="secondaryToolbar hidden doorHangerRight"
         >
           <div id="secondaryToolbarButtonContainer">
+            <button
+              id="secondaryUrlSearch"
+              class="secondaryToolbarButton urlSearch visibleLargeView"
+              title="Search through URL"
+              data-l10n-id="url_search"
+            >
+              <span data-l10n-id="url_search_label">URL Search</span>
+            </button>
             <button
               id="secondaryPresentationMode"
               class="secondaryToolbarButton presentationMode visibleLargeView"
@@ -494,6 +515,14 @@ See https://github.com/adobe-type-tools/cmap-resources
               </div>
               <div id="toolbarViewerRight">
                 <button
+                  id="urlSearch"
+                  class="toolbarButton urlSearch hiddenLargeView"
+                  title="Search through URL"
+                  data-l10n-id="url_search"
+                >
+                  <span data-l10n-id="url_search_label">URL Search</span>
+                </button>
+                <button
                   id="presentationMode"
                   class="toolbarButton presentationMode hiddenLargeView"
                   title="Switch to Presentation Mode"
@@ -504,7 +533,6 @@ See https://github.com/adobe-type-tools/cmap-resources
                     >Presentation Mode</span
                   >
                 </button>
-
                 <button
                   id="openFile"
                   class="toolbarButton openFile hiddenLargeView"
@@ -899,13 +927,12 @@ See https://github.com/adobe-type-tools/cmap-resources
   </body>
   <script>
     //VIEWER.html
-    let initialized = false;
 
     window.addEventListener("message", async ({ data }) => {
       if (data.type === "page:rendered") {
-        if (initialized) return;
+        if (JSON.parse(localStorage.getItem("initialized"))) return;
 
-        initialized = true;
+        localStorage.setItem("initialized", true);
 
         const digestMessage = async message => {
           const msgUint8 = new TextEncoder().encode(message);
@@ -926,8 +953,11 @@ See https://github.com/adobe-type-tools/cmap-resources
           );
         };
 
-        const orgURL = location.href;
-        const pdfURL = orgURL.split("=")[1]; //Take the PDF Path only
+        const isElectron =
+          navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
+        const lsURL = isElectron && localStorage.getItem("pdfURL");
+        const orgURL = isElectron ? lsURL : location.href;
+        const pdfURL = !isElectron ? orgURL.split("=")[1] : orgURL; //Take the PDF Path only
         const cleanURL = pdfURL && pdfURL.split("?")[0]; //Ignore the query Params
         const domains = {
           "mobility-426be.appspot.com": "www.vmlyr.com",

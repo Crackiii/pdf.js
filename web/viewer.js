@@ -69,6 +69,7 @@ function getViewerConfiguration() {
     mainContainer: document.getElementById("viewerContainer"),
     viewerContainer: document.getElementById("viewer"),
     eventBus: null,
+    pdfURL: document.getElementById("pdfURL"),
     toolbar: {
       container: document.getElementById("toolbarViewer"),
       numPages: document.getElementById("numPages"),
@@ -82,6 +83,7 @@ function getViewerConfiguration() {
       zoomOut: document.getElementById("zoomOut"),
       viewFind: document.getElementById("viewFind"),
       openFile: document.getElementById("openFile"),
+      urlSearch: document.getElementById("urlSearch"),
       print: document.getElementById("print"),
       presentationModeButton: document.getElementById("presentationMode"),
       download: document.getElementById("download"),
@@ -197,6 +199,25 @@ function getViewerConfiguration() {
 
 function webViewerLoad() {
   const config = getViewerConfiguration();
+  const isElectron =
+    navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
+  if (isElectron) {
+    const form = document.querySelector("#urlSubmit");
+    form.addEventListener("submit", ev => {
+      ev.preventDefault();
+      const v = ev.target[0].value;
+      config.remoteURL = v;
+      PDFViewerApplication.run(config);
+      localStorage.setItem("initialized", false);
+      window.postMessage(
+        {
+          type: "page:rendered",
+          page: null,
+        },
+        "*"
+      );
+    });
+  }
   if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")) {
     Promise.all([
       import("pdfjs-web/genericcom.js"),
