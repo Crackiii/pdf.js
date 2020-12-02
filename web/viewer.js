@@ -69,7 +69,9 @@ function getViewerConfiguration() {
     mainContainer: document.getElementById("viewerContainer"),
     viewerContainer: document.getElementById("viewer"),
     eventBus: null,
-    pdfURL: document.getElementById("pdfURL"),
+    pdfURL: {
+      form: document.getElementById("urlSubmit"),
+    },
     toolbar: {
       container: document.getElementById("toolbarViewer"),
       numPages: document.getElementById("numPages"),
@@ -199,25 +201,50 @@ function getViewerConfiguration() {
 
 function webViewerLoad() {
   const config = getViewerConfiguration();
+
+  //
   const isElectron =
     navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
   if (isElectron) {
-    const form = document.querySelector("#urlSubmit");
-    form.addEventListener("submit", ev => {
+    const { ipcRenderer } = require("electron");
+    const f = config.pdfURL.form;
+    let urlInp = f.querySelector('[name="pdfURL"]');
+    urlInp.value = localStorage.getItem("pdfURL") || "";
+    //Validate the URL
+    const isValidURL = url => {
+      return !!/(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/.test(
+        url
+      );
+    };
+    //Post a message
+    const message = msg => {
+      const parent = f.parentNode;
+      const el = document.createElement("div");
+      el.className = "url-message";
+      el.textContent = msg;
+      parent.appendChild(el);
+      setTimeout(() => parent.removeChild(el), 3000);
+    };
+    //Submit the form
+    f.addEventListener("submit", ev => {
       ev.preventDefault();
       const v = ev.target[0].value;
-      config.remoteURL = v;
-      PDFViewerApplication.run(config);
-      localStorage.setItem("initialized", false);
-      window.postMessage(
-        {
-          type: "page:rendered",
-          page: null,
-        },
-        "*"
-      );
+      if ([...v].length === 0) {
+        message("Please paste a url...");
+        return;
+      }
+      if (isValidURL(v)) {
+        localStorage.setItem("pdfURL", v);
+        //To send a message to electron main process
+        ipcRenderer.send("electron:reload", v);
+      } else {
+        message("You have entered an invalid url !");
+      }
     });
+    //Clear the localstorage when application is quitted/closed
+    ipcRenderer.on("pdf:url", _ => localStorage.clear());
   }
+
   if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")) {
     Promise.all([
       import("pdfjs-web/genericcom.js"),

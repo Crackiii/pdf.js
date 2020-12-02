@@ -57,7 +57,6 @@ function createHeaders(httpHeaders) {
 /** @implements {IPDFStream} */
 class PDFFetchStream {
   constructor(source) {
-    console.log("YOUR SOURCE S", source);
     this.source = source;
     this.isHttp = /^https?:/i.test(source.url);
     this.httpHeaders = (this.isHttp && source.httpHeaders) || {};
@@ -67,12 +66,10 @@ class PDFFetchStream {
   }
 
   get _progressiveDataLength() {
-    console.log("GET CALLED");
     return this._fullRequestReader ? this._fullRequestReader._loaded : 0;
   }
 
   getFullReader() {
-    console.log("getFullReader CALLED");
     assert(
       !this._fullRequestReader,
       "PDFFetchStream.getFullReader can only be called once."
@@ -82,7 +79,6 @@ class PDFFetchStream {
   }
 
   getRangeReader(begin, end) {
-    console.log("getRangeReader CALLED");
     if (end <= this._progressiveDataLength) {
       return null;
     }
@@ -92,7 +88,6 @@ class PDFFetchStream {
   }
 
   cancelAllRequests(reason) {
-    console.log("cancelAllRequests CALLED");
     if (this._fullRequestReader) {
       this._fullRequestReader.cancel(reason);
     }
@@ -106,7 +101,6 @@ class PDFFetchStream {
 /** @implements {IPDFStreamReader} */
 class PDFFetchStreamReader {
   constructor(stream) {
-    console.log("READER CALLED");
     this._stream = stream;
     this._reader = null;
     this._loaded = 0;

@@ -454,7 +454,6 @@ function debounce(func, wait, immediate) {
 
 window.addEventListener("message", ({ data }) => {
   if (data.type === "page:rendered") {
-    console.log("%c Page:rendered ", "color:white; background:green;");
     const { pageIndex, pageNumber, pageStyles } = data.page;
     const pageView = PDFViewerApplication.pdfViewer.getPageView(pageIndex);
     const { div } = pageView;

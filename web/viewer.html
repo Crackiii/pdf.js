@@ -230,12 +230,10 @@ See https://github.com/adobe-type-tools/cmap-resources
         <div id="pdfURL" data-shown="false">
           <form class="pdfURL" id="urlSubmit">
             <input
-              type="url"
+              type="text"
               name="pdfURL"
-              placeholder="Past your URL"
-              required
+              placeholder="Paste a pdf url to load..."
             />
-            <button type="submit">LOAD</button>
           </form>
         </div>
 
@@ -927,12 +925,11 @@ See https://github.com/adobe-type-tools/cmap-resources
   </body>
   <script>
     //VIEWER.html
+    let initialized = false;
 
     window.addEventListener("message", async ({ data }) => {
-      if (data.type === "page:rendered") {
-        if (JSON.parse(localStorage.getItem("initialized"))) return;
-
-        localStorage.setItem("initialized", true);
+      if (data.type === "page:rendered" && !initialized) {
+        initialized = true;
 
         const digestMessage = async message => {
           const msgUint8 = new TextEncoder().encode(message);

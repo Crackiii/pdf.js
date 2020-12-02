@@ -228,7 +228,6 @@ function getDocument(src) {
     }
     source = src;
   }
-  console.log("YOUR SOURCE", source);
   const params = Object.create(null);
   let rangeTransport = null,
     worker = null;

@@ -687,7 +687,6 @@ const PDFViewerApplication = {
 
   get loadingBar() {
     const bar = new ProgressBar("#loadingBar");
-    console.log("LOADING BAR CALLED", bar);
     return shadow(this, "loadingBar", bar);
   },
 
@@ -704,14 +703,12 @@ const PDFViewerApplication = {
     }
     this.externalServices.initPassiveLoading({
       onOpenWithTransport(url, length, transport) {
-        console.log("onOpenWithTransport ", url, length, transport);
         PDFViewerApplication.open(url, { length, range: transport });
       },
       onOpenWithData(data) {
         PDFViewerApplication.open(data);
       },
       onOpenWithURL(url, length, originalUrl) {
-        console.log("onOpenWithURL ", url, length, originalUrl);
         let file = url,
           args = null;
         if (length !== undefined) {
@@ -831,7 +828,6 @@ const PDFViewerApplication = {
    *                      is opened.
    */
   async open(file, args) {
-    console.log("OPEN CALLED", file, args);
     if (this.pdfLoadingTask) {
       // We need to destroy already opened document.
       await this.close();
@@ -1909,10 +1905,9 @@ const PDFViewerApplication = {
   urlSearch() {
     let el = document.getElementById("pdfURL");
     let elAtt = el.getAttribute("data-shown");
-    console.log("CLICKED THIS SHIT", elAtt);
     if (elAtt && elAtt === "false") {
       el.setAttribute("data-shown", true);
-      el.style.display = "flex";
+      el.style.display = "block";
     } else {
       el.setAttribute("data-shown", false);
       el.style.display = "none";
@@ -2206,8 +2201,7 @@ function webViewerInitialized() {
       file = AppOptions.get("defaultUrl");
     }
   } else {
-    console.log("[===> PDF URL]", appConfig.remoteURL);
-    file = appConfig.remoteURL || AppOptions.get("defaultUrl");
+    file = localStorage.getItem("pdfURL") || AppOptions.get("defaultUrl");
   }
 
   if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
