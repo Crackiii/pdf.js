@@ -77,6 +77,7 @@ import { SecondaryToolbar } from "./secondary_toolbar.js";
 import { Toolbar } from "./toolbar.js";
 import { viewerCompatibilityParams } from "./viewer_compatibility.js";
 import { ViewHistory } from "./view_history.js";
+import { PDFUrlSearch } from "./pdf_url_search.js";
 
 const DEFAULT_SCALE_DELTA = 1.1;
 const DISABLE_AUTO_FETCH_LOADING_BAR_TIMEOUT = 5000; // ms
@@ -1901,6 +1902,18 @@ const PDFViewerApplication = {
     this.pdfPresentationMode.request();
   },
 
+  urlSearch() {
+    let el = document.getElementById("pdfURL");
+    let elAtt = el.getAttribute("data-shown");
+    if (elAtt && elAtt === "false") {
+      el.setAttribute("data-shown", true);
+      el.style.display = "block";
+    } else {
+      el.setAttribute("data-shown", false);
+      el.style.display = "none";
+    }
+  },
+
   triggerPrinting() {
     if (!this.supportsPrinting) {
       return;
@@ -1928,6 +1941,8 @@ const PDFViewerApplication = {
     eventBus._on("namedaction", webViewerNamedAction);
     eventBus._on("presentationmodechanged", webViewerPresentationModeChanged);
     eventBus._on("presentationmode", webViewerPresentationMode);
+    eventBus._on("urlsearch", webViewerUrlSearch);
+    eventBus._on("pdfurl", webViewerpdfURL);
     eventBus._on("print", webViewerPrint);
     eventBus._on("download", webViewerDownload);
     eventBus._on("save", webViewerSave);
@@ -2015,6 +2030,7 @@ const PDFViewerApplication = {
     eventBus._off("namedaction", webViewerNamedAction);
     eventBus._off("presentationmodechanged", webViewerPresentationModeChanged);
     eventBus._off("presentationmode", webViewerPresentationMode);
+    eventBus._off("pdfurl", webViewerpdfURL);
     eventBus._off("print", webViewerPrint);
     eventBus._off("download", webViewerDownload);
     eventBus._off("save", webViewerSave);
@@ -2108,6 +2124,7 @@ if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
     }
     try {
       const viewerOrigin = new URL(window.location.href).origin || "null";
+      console.log(viewerOrigin);
       if (HOSTED_VIEWER_ORIGINS.includes(viewerOrigin)) {
         // Hosted or local viewer, allow for any file locations
         return;
@@ -2170,15 +2187,21 @@ function reportPageStatsPDFBug({ pageNumber }) {
 function webViewerInitialized() {
   const appConfig = PDFViewerApplication.appConfig;
   let file;
-  if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
-    const queryString = document.location.search.substring(1);
-    const params = parseQueryString(queryString);
-    file = "file" in params ? params.file : AppOptions.get("defaultUrl");
-    validateFileURL(file);
-  } else if (PDFJSDev.test("MOZCENTRAL")) {
-    file = window.location.href;
-  } else if (PDFJSDev.test("CHROME")) {
-    file = AppOptions.get("defaultUrl");
+  const isElectron =
+    navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
+  if (!isElectron) {
+    if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
+      const queryString = document.location.search.substring(1);
+      const params = parseQueryString(queryString);
+      file = "file" in params ? params.file : AppOptions.get("defaultUrl");
+      validateFileURL(file);
+    } else if (PDFJSDev.test("MOZCENTRAL")) {
+      file = window.location.href;
+    } else if (PDFJSDev.test("CHROME")) {
+      file = AppOptions.get("defaultUrl");
+    }
+  } else {
+    file = localStorage.getItem("pdfURL") || AppOptions.get("defaultUrl");
   }
 
   if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
@@ -2581,6 +2604,13 @@ if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
 
 function webViewerPresentationMode() {
   PDFViewerApplication.requestPresentationMode();
+}
+
+function webViewerUrlSearch() {
+  PDFViewerApplication.urlSearch();
+}
+function webViewerpdfURL(e) {
+  PDFViewerApplication.pdfURL(e);
 }
 function webViewerPrint() {
   PDFViewerApplication.triggerPrinting();

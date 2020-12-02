@@ -65,6 +65,11 @@ class SecondaryToolbar {
         eventName: "presentationmode",
         close: true,
       },
+      {
+        element: options.secondaryUrlSearch,
+        eventName: "urlsearch",
+        close: true,
+      },
       { element: options.openFileButton, eventName: "openfile", close: true },
       { element: options.printButton, eventName: "print", close: true },
       { element: options.downloadButton, eventName: "download", close: true },
@@ -187,9 +192,9 @@ class SecondaryToolbar {
 
   setPageNumber(pageNumber) {
     /*
-      * Load the vidy links when each page is set
-    */
-    window.postMessage({type: 'lens:reload'}, "*");
+     * Load the vidy links when each page is set
+     */
+    window.postMessage({ type: "lens:reload" }, "*");
     this.pageNumber = pageNumber;
     this._updateUIState();
   }

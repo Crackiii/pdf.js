@@ -133,9 +133,10 @@ class PDFFetchStreamReader {
     const url = /(localhost)/gi.test(source.url)
       ? source.url
       : `${host}/pdf-cors?file=${sUrl}`;
-
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isElectron = userAgent.indexOf(" electron/") > -1;
     fetch(
-      url,
+      isElectron ? source.url : url,
       createFetchOptions(
         this._headers,
         this._withCredentials,
@@ -298,4 +299,4 @@ class PDFFetchStreamRangeReader {
   }
 }
 
-export { PDFFetchStream };
+export { PDFFetchStream, PDFFetchStreamReader };
