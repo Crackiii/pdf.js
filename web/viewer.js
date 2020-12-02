@@ -100,6 +100,7 @@ function getViewerConfiguration() {
       presentationModeButton: document.getElementById(
         "secondaryPresentationMode"
       ),
+      secondaryUrlSearch: document.getElementById("secondaryUrlSearch"),
       openFileButton: document.getElementById("secondaryOpenFile"),
       printButton: document.getElementById("secondaryPrint"),
       downloadButton: document.getElementById("secondaryDownload"),

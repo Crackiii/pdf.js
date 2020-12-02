@@ -67,7 +67,7 @@
   --toolbarButton-zoomOut-icon: url(images/toolbarButton-zoomOut.svg);
   --toolbarButton-zoomIn-icon: url(images/toolbarButton-zoomIn.svg);
   --toolbarButton-presentationMode-icon: url(images/toolbarButton-presentationMode.svg);
-  --toolbarButton-url-icon: url(images/url-icon.svg);
+  --toolbarButton-url-icon: url(images/url-icon-dark.svg);
   --toolbarButton-print-icon: url(images/toolbarButton-print.svg);
   --toolbarButton-openFile-icon: url(images/toolbarButton-openFile.svg);
   --toolbarButton-download-icon: url(images/toolbarButton-download.svg);
@@ -139,7 +139,7 @@
     --toolbarButton-zoomOut-icon: url(images/toolbarButton-zoomOut-dark.svg);
     --toolbarButton-zoomIn-icon: url(images/toolbarButton-zoomIn-dark.svg);
     --toolbarButton-presentationMode-icon: url(images/toolbarButton-presentationMode-dark.svg);
-    /* --toolbarButton-url-icon: url(images/url-icon-dark.svg); */
+    --toolbarButton-url-icon: url(images/url-icon.svg);
     --toolbarButton-print-icon: url(images/toolbarButton-print-dark.svg);
     --toolbarButton-openFile-icon: url(images/toolbarButton-openFile-dark.svg);
     --toolbarButton-download-icon: url(images/toolbarButton-download-dark.svg);
@@ -1836,7 +1836,7 @@ html[dir="rtl"] #documentPropertiesOverlay .row > * {
   position: absolute;
   width: 100%;
   padding: 4px 4px 4px 4px;
-  z-index: 999999;
+  z-index: 9999;
   display: none;
   top: 32px;
   background: #f9f9fa;
