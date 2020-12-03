@@ -10,7 +10,7 @@ function createWindow() {
     icon: `${__dirname}/Icon/Icon.icns`,
   });
 
-  win.loadFile(`${__dirname}/web/viewer.html`);
+  win.loadFile(`${__dirname}/build/generic/web/viewer.html`);
   win.webContents.openDevTools();
   ipcMain.on("electron:reload", event => {
     win.reload();

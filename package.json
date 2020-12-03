@@ -69,7 +69,8 @@
     "postinstall": "cross-env PUPPETEER_PRODUCT=firefox node node_modules/puppeteer/install.js",
     "test": "gulp npm-test",
     "start": "electron electron.js",
-    "build": "electron-packager . VidyPDF"
+    "start:electron": "gulp generic && npm start",
+    "build": "electron-packager ./build/generic --platform=darwin --arch=x64 --prune --overwrite"
   },
   "repository": {
     "type": "git",
