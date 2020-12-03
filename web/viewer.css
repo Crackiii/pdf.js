@@ -55,6 +55,7 @@
   --doorhanger-separator-color: rgba(222, 222, 222, 1);
   --overlay-button-bg-color: rgba(12, 12, 13, 0.1);
   --overlay-button-hover-color: rgba(12, 12, 13, 0.3);
+  --pdf-url-background-color: #f9f9fa;
 
   --loading-icon: url(images/loading.svg);
   --treeitem-expanded-icon: url(images/treeitem-expanded.svg);
@@ -127,6 +128,7 @@
     --doorhanger-separator-color: rgba(92, 92, 97, 1);
     --overlay-button-bg-color: rgba(92, 92, 97, 1);
     --overlay-button-hover-color: rgba(115, 115, 115, 1);
+    --pdf-url-background-color: #38383d;
 
     --loading-icon: url(images/loading-dark.svg);
     --treeitem-expanded-icon: url(images/treeitem-expanded-dark.svg);
@@ -1839,7 +1841,7 @@ html[dir="rtl"] #documentPropertiesOverlay .row > * {
   z-index: 9999;
   display: none;
   top: 32px;
-  background: #f9f9fa;
+  background: var(--pdf-url-background-color);
   box-sizing: border-box;
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }

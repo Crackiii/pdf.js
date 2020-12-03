@@ -15,6 +15,7 @@
     "core-js": "^3.7.0",
     "cross-env": "^7.0.2",
     "electron": "^11.0.3",
+    "electron-packager": "^15.1.0",
     "es-module-shims": "^0.6.0",
     "escodegen": "^2.0.0",
     "eslint": "^7.13.0",
@@ -67,11 +68,17 @@
   "scripts": {
     "postinstall": "cross-env PUPPETEER_PRODUCT=firefox node node_modules/puppeteer/install.js",
     "test": "gulp npm-test",
-    "start": "electron electron.js"
+    "start": "electron electron.js",
+    "build": "electron-packager . VidyPDF"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/mozilla/pdf.js.git"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "del": "^6.0.0",
+    "vinyl-source-stream": "^2.0.0"
+  }
 }

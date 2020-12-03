@@ -74,9 +74,21 @@ See https://github.com/adobe-type-tools/cmap-resources
         location.origin.indexOf("file://") !== -1
           ? "http://192.168.43.35:5000/embed.min.js"
           : "https://preview.vidy.sh/embed.min.js";
+
       head.appendChild(script);
     </script>
     <script src="viewer.js" type="module-shim"></script>
+    <script>
+      const isElectron =
+        navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
+      if (isElectron) {
+        const head = document.getElementsByTagName("head")[0];
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "ipc_electron.js";
+        head.appendChild(script);
+      }
+    </script>
     <!--#endif-->
 
     <!--#if (GENERIC && !MINIFIED) -->

@@ -200,14 +200,13 @@ function getViewerConfiguration() {
   };
 }
 
-function webViewerLoad() {
+async function webViewerLoad() {
   const config = getViewerConfiguration();
 
   //
   const isElectron =
     navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
   if (isElectron) {
-    const { ipcRenderer } = require("electron");
     const f = config.pdfURL.form;
     let urlInp = f.querySelector('[name="pdfURL"]');
     urlInp.value = localStorage.getItem("pdfURL") || "";
@@ -237,13 +236,11 @@ function webViewerLoad() {
       if (isValidURL(v)) {
         localStorage.setItem("pdfURL", v);
         //To send a message to electron main process
-        ipcRenderer.send("electron:reload", v);
+        window.postMessage({ type: "electron:reload" }, "*");
       } else {
         message("You have entered an invalid url !");
       }
     });
-    //Clear the localstorage when application is quitted/closed
-    ipcRenderer.on("pdf:url", _ => localStorage.clear());
   }
 
   if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")) {
