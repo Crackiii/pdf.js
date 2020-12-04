@@ -497,8 +497,6 @@ See https://github.com/adobe-type-tools/cmap-resources
           );
         };
 
-        const isElectron =
-          navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
         const lsURL = isElectron && localStorage.getItem("pdfURL");
         const orgURL = isElectron ? lsURL : location.href;
         const pdfURL = !isElectron ? orgURL.split("=")[1] : orgURL; //Take the PDF Path only

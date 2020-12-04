@@ -80,9 +80,8 @@
   "scripts": {
     "postinstall": "cross-env PUPPETEER_PRODUCT=firefox node node_modules/puppeteer/install.js",
     "test": "gulp npm-test",
-    "start": "electron electron.js",
-    "start:electron": "gulp generic && npm start",
-    "dist": "electron-builder"
+    "build:electron": "gulp generic && electron electron.js",
+    "dist:mac": "gulp generic && electron-builder"
   },
   "repository": {
     "type": "git",

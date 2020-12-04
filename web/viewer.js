@@ -241,6 +241,9 @@ async function webViewerLoad() {
         message("You have entered an invalid url !");
       }
     });
+  } else {
+    document.getElementById('toolbarViewerRight').removeChild(config.toolbar.urlSearch);
+    document.getElementById('secondaryToolbarButtonContainer').removeChild(config.secondaryToolbar.secondaryUrlSearch);
   }
 
   if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")) {

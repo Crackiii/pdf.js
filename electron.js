@@ -7,7 +7,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true
     },
-    icon: `${__dirname}/Icon/Icon.icns`,
+    icon: `${__dirname}/Icon/vidycoin.png`,
   });
   win.loadFile(`${__dirname}/build/generic/web/viewer.html`);
   // win.webContents.openDevTools();
