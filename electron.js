@@ -5,13 +5,12 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: true
     },
     icon: `${__dirname}/Icon/Icon.icns`,
   });
-
   win.loadFile(`${__dirname}/build/generic/web/viewer.html`);
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
   ipcMain.on("electron:reload", event => {
     win.reload();
   });

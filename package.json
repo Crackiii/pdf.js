@@ -1,6 +1,18 @@
 {
   "name": "pdf.js",
   "version": "2.0.0",
+  "main": "electron.js",
+  "build": {
+    "appId": "com.vidy.app",
+    "productName": "Vidy",
+    "directories": { "output": "build/release" },
+    "icon": "./Icon/vidycoin.png",
+    "files": [
+      "*.js",
+      "build",
+      "node_modules"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/plugin-proposal-logical-assignment-operators": "^7.12.1",
@@ -15,7 +27,7 @@
     "core-js": "^3.7.0",
     "cross-env": "^7.0.2",
     "electron": "^11.0.3",
-    "electron-packager": "^15.1.0",
+    "electron-builder": "^22.9.1",
     "es-module-shims": "^0.6.0",
     "escodegen": "^2.0.0",
     "eslint": "^7.13.0",
@@ -70,7 +82,7 @@
     "test": "gulp npm-test",
     "start": "electron electron.js",
     "start:electron": "gulp generic && npm start",
-    "build": "electron-packager ./build/generic --platform=darwin --arch=x64 --prune --overwrite"
+    "dist": "electron-builder"
   },
   "repository": {
     "type": "git",
@@ -78,6 +90,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "asar": "^3.0.3",
     "browserify": "^17.0.0",
     "del": "^6.0.0",
     "vinyl-source-stream": "^2.0.0"
