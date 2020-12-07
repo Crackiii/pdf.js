@@ -42,6 +42,9 @@ var webpackStream = require("webpack-stream");
 var Vinyl = require("vinyl");
 var vfs = require("vinyl-fs");
 var through = require("through2");
+var browserify = require("browserify");
+var source = require("vinyl-source-stream");
+var gulp_del = require("del");
 
 var BUILD_DIR = "build/";
 var L10N_DIR = "l10n/";
@@ -408,6 +411,17 @@ function createWorkerBundle(defines) {
     .pipe(webpack2Stream(workerFileConfig))
     .pipe(replaceWebpackRequire())
     .pipe(replaceJSRootName(workerAMDName, "pdfjsWorker"));
+}
+
+function createElectronBundle(defines) {
+  var viewerOutputName = "ipc_electron_bundle.js";
+
+  var viewerFileConfig = createWebpackConfig(defines, {
+    filename: viewerOutputName,
+  });
+  return gulp
+    .src("./web/ipc_electron_bundle.js")
+    .pipe(webpack2Stream(viewerFileConfig));
 }
 
 function createWebBundle(defines) {
@@ -797,6 +811,7 @@ function buildGeneric(defines, dir) {
   return merge([
     createMainBundle(defines).pipe(gulp.dest(dir + "build")),
     createWorkerBundle(defines).pipe(gulp.dest(dir + "build")),
+    createElectronBundle(defines).pipe(gulp.dest(dir + "web")),
     createWebBundle(defines).pipe(gulp.dest(dir + "web")),
     gulp.src(COMMON_WEB_FILES, { base: "web/" }).pipe(gulp.dest(dir + "web")),
     gulp.src("LICENSE").pipe(gulp.dest(dir)),
@@ -825,6 +840,40 @@ function buildGeneric(defines, dir) {
   ]);
 }
 
+gulp.task("browserify", () => {
+  console.log();
+  console.log("### Browserifying ipc_electron.js");
+  return browserify("./web/ipc_electron.js", {
+    debug: true,
+    extensions: [".js"],
+    ignoreMissing: true,
+    detectGlobals: false,
+    bare: true,
+    debug: false,
+    builtins: false,
+    commondir: false,
+  })
+    .exclude("fs")
+    .exclude("electron")
+    .exclude("electron-updater")
+    .exclude("electron-settings")
+    .exclude("path")
+    .exclude("url")
+    .exclude("sqlite3")
+    .exclude("express")
+    .exclude("net")
+    .exclude("body-parser")
+    .bundle()
+    .pipe(source("ipc_electron_bundle.js"))
+    .pipe(gulp.dest("./web"));
+});
+
+gulp.task("del", () => {
+  console.log();
+  console.log("### Deleting ipc_electron.js");
+  return gulp_del("./web/ipc_electron_bundle.js");
+});
+
 // Builds the generic production viewer that is only compatible with up-to-date
 // HTML5 browsers, which implement modern ECMAScript features.
 gulp.task(
@@ -833,13 +882,14 @@ gulp.task(
     "buildnumber",
     "default_preferences",
     "locale",
+    "browserify",
     function () {
       console.log();
       console.log("### Creating generic viewer");
       var defines = builder.merge(DEFINES, { GENERIC: true });
-
       return buildGeneric(defines, GENERIC_DIR);
     },
+    "del",
     "sandbox"
   )
 );

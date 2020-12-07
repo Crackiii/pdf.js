@@ -5,13 +5,12 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: true
     },
-    icon: `${__dirname}/Icon/Icon.icns`,
+    icon: `${__dirname}/Icon/vidycoin.png`,
   });
-
-  win.loadFile(`${__dirname}/web/viewer.html`);
-  win.webContents.openDevTools();
+  win.loadFile(`${__dirname}/build/generic/web/viewer.html`);
+  // win.webContents.openDevTools();
   ipcMain.on("electron:reload", event => {
     win.reload();
   });

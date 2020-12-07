@@ -55,6 +55,8 @@
   --doorhanger-separator-color: rgba(222, 222, 222, 1);
   --overlay-button-bg-color: rgba(12, 12, 13, 0.1);
   --overlay-button-hover-color: rgba(12, 12, 13, 0.3);
+  --pdf-url-background-color: #f9f9fa;
+  --pdf-url-message-color: red;
 
   --loading-icon: url(images/loading.svg);
   --treeitem-expanded-icon: url(images/treeitem-expanded.svg);
@@ -127,6 +129,8 @@
     --doorhanger-separator-color: rgba(92, 92, 97, 1);
     --overlay-button-bg-color: rgba(92, 92, 97, 1);
     --overlay-button-hover-color: rgba(115, 115, 115, 1);
+    --pdf-url-background-color: #38383d;
+    --pdf-url-message-color: #ff6c6c;
 
     --loading-icon: url(images/loading-dark.svg);
     --treeitem-expanded-icon: url(images/treeitem-expanded-dark.svg);
@@ -1839,7 +1843,7 @@ html[dir="rtl"] #documentPropertiesOverlay .row > * {
   z-index: 9999;
   display: none;
   top: 32px;
-  background: #f9f9fa;
+  background: var(--pdf-url-background-color);
   box-sizing: border-box;
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
@@ -1860,7 +1864,7 @@ html[dir="rtl"] #documentPropertiesOverlay .row > * {
 }
 .url-message {
   display: block;
-  color: red;
+  color: var(--pdf-url-message-color);
   font-style: italic;
   font-size: 12px;
   margin-top: 5px;
