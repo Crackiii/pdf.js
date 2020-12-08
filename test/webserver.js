@@ -250,7 +250,7 @@ WebServer.prototype = {
               href = encodeURI(item);
               label = file;
             } else if (path.extname(file).toLowerCase() === ".pdf") {
-              href = "/web/viewer.html?file=" + encodeURIComponent(item);
+              href = "/web/index.html?file=" + encodeURIComponent(item);
               label = file;
               extraAttributes = ' target="pdf"';
             } else if (all) {

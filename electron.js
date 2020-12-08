@@ -9,8 +9,8 @@ function createWindow() {
     },
     icon: `${__dirname}/Icon/vidycoin.png`,
   });
-  win.loadFile(`${__dirname}/build/generic/web/viewer.html`);
-  // win.webContents.openDevTools();
+  win.loadFile(`${__dirname}/build/index.html`);
+  win.webContents.openDevTools();
   ipcMain.on("electron:reload", event => {
     win.reload();
   });

@@ -174,8 +174,8 @@ const defaultOptions = {
     /** @type {string} */
     value:
       typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
-        ? "../external/bcmaps/"
-        : "../web/cmaps/",
+        ? "./external/bcmaps/"
+        : "./cmaps/",
     kind: OptionKind.API,
   },
   disableAutoFetch: {
@@ -227,8 +227,8 @@ const defaultOptions = {
     /** @type {string} */
     value:
       typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
-        ? "../build/generic/build/pdf.sandbox.js"
-        : "../build/pdf.sandbox.js",
+        ? "./build/generic/build/pdf.sandbox.js"
+        : "./build/pdf.sandbox.js",
     kind: OptionKind.VIEWER,
   },
   verbosity: {
@@ -246,8 +246,8 @@ const defaultOptions = {
     /** @type {string} */
     value:
       typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
-        ? "../src/worker_loader.js"
-        : "../build/pdf.worker.js",
+        ? "./src/worker_loader.js"
+        : "./build/pdf.worker.js",
     kind: OptionKind.WORKER,
   },
 };

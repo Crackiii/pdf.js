@@ -26,9 +26,9 @@ Feel free to stop by our [Matrix room](https://chat.mozilla.org/#/room/#pdfjs:mo
 Please note that the "Modern browsers" version assumes native support for
 features such as e.g. `async`/`await`, and `ReadableStream`.
 
-- Modern browsers: https://mozilla.github.io/pdf.js/web/viewer.html
+- Modern browsers: https://mozilla.github.io/pdf.js/web/index.html
 
-- Older browsers: https://mozilla.github.io/pdf.js/es5/web/viewer.html
+- Older browsers: https://mozilla.github.io/pdf.js/es5/web/index.html
 
 ## Vidy Changes
 
@@ -37,7 +37,7 @@ Changes are made on different files which are inlisted below:
 - web/app.js
 - web/secondary_toolbar.js
 - web/text_layer_builder.css
-- web/viewer.html
+- web/index.html
 - src/display/text_layer.js
 - src/display/fetch_stream.js
 - src/display/canvas.js
@@ -80,7 +80,7 @@ PDF files using a `file://` URL. Run:
 
 and then you can open:
 
-- http://localhost:8888/web/viewer.html
+- http://localhost:8888/web/index.html
 
 Please keep in mind that this requires an ES6 compatible browser; refer to [Building PDF.js](https://github.com/mozilla/pdf.js/blob/master/README.md#building-pdfjs) for usage with older browsers.
 

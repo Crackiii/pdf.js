@@ -115,7 +115,7 @@ class PDFAttachmentViewer extends BaseTreeViewer {
         // in viewer.js, so an absolute URL must be generated.
         viewerUrl =
           // eslint-disable-next-line no-undef
-          chrome.runtime.getURL("/content/web/viewer.html") +
+          chrome.runtime.getURL("/content/web/index.html") +
           "?file=" +
           encodeURIComponent(blobUrl + "#" + filename);
       }

@@ -94,7 +94,7 @@ Note that we only mention the most relevant files and folders.
 │   ├── images/                            - images for the viewer and annotation icons
 │   ├── locale/                            - translation files
 │   ├── viewer.css                         - viewer style sheet
-│   ├── viewer.html                        - viewer layout
+│   ├── index.html                        - viewer layout
 │   ├── viewer.js                          - viewer layer
 │   └── viewer.js.map                      - viewer layer's source map
 └── LICENSE
@@ -126,7 +126,7 @@ Note that we only mention the most relevant files and folders.
 
 ## Trying the Viewer
 
-With the prebuilt or source version, open `web/viewer.html` in a browser and the test pdf should load. Note: the worker is not enabled for file:// urls, so use a server. If you're using the source build and have node, you can run `gulp server`.
+With the prebuilt or source version, open `web/index.html` in a browser and the test pdf should load. Note: the worker is not enabled for file:// urls, so use a server. If you're using the source build and have node, you can run `gulp server`.
 
 ## More Information
 

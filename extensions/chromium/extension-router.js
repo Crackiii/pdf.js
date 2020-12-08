@@ -17,7 +17,7 @@ limitations under the License.
 "use strict";
 
 (function ExtensionRouterClosure() {
-  var VIEWER_URL = chrome.extension.getURL("content/web/viewer.html");
+  var VIEWER_URL = chrome.extension.getURL("content/web/index.html");
   var CRX_BASE_URL = chrome.extension.getURL("/");
 
   var schemes = [
@@ -63,7 +63,7 @@ limitations under the License.
   chrome.webRequest.onBeforeRequest.addListener(
     function (details) {
       // This listener converts chrome-extension://.../http://...pdf to
-      // chrome-extension://.../content/web/viewer.html?file=http%3A%2F%2F...pdf
+      // chrome-extension://.../content/web/index.html?file=http%3A%2F%2F...pdf
       var url = parseExtensionURL(details.url);
       if (url) {
         url = VIEWER_URL + "?file=" + url;

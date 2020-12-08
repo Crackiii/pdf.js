@@ -44,7 +44,6 @@ var vfs = require("vinyl-fs");
 var through = require("through2");
 var browserify = require("browserify");
 var source = require("vinyl-source-stream");
-var gulp_del = require("del");
 
 var BUILD_DIR = "build/";
 var L10N_DIR = "l10n/";
@@ -266,7 +265,7 @@ function webpack2Stream(webpackConfig) {
 }
 
 function getVersionJSON() {
-  return JSON.parse(fs.readFileSync(BUILD_DIR + "version.json").toString());
+  return { version: '2.7.306', build: 306, commit: '4e6c09106' };//JSON.parse(fs.readFileSync(BUILD_DIR + "version.json").toString());
 }
 
 function checkChromePreferencesFile(chromePrefsPath, webPrefsPath) {
@@ -811,21 +810,21 @@ function buildGeneric(defines, dir) {
   return merge([
     createMainBundle(defines).pipe(gulp.dest(dir + "build")),
     createWorkerBundle(defines).pipe(gulp.dest(dir + "build")),
-    createElectronBundle(defines).pipe(gulp.dest(dir + "web")),
-    createWebBundle(defines).pipe(gulp.dest(dir + "web")),
-    gulp.src(COMMON_WEB_FILES, { base: "web/" }).pipe(gulp.dest(dir + "web")),
+    createElectronBundle(defines).pipe(gulp.dest(dir )),
+    createWebBundle(defines).pipe(gulp.dest(dir )),
+    gulp.src(COMMON_WEB_FILES, { base: "web/" }).pipe(gulp.dest(dir )),
     gulp.src("LICENSE").pipe(gulp.dest(dir)),
     gulp
-      .src(["web/locale/*/viewer.properties", "web/locale/locale.properties"], {
+      .src(["locale/*/viewer.properties", "web/locale/locale.properties"], {
         base: "web/",
       })
-      .pipe(gulp.dest(dir + "web")),
+      .pipe(gulp.dest(dir)),
     gulp
       .src(["external/bcmaps/*.bcmap", "external/bcmaps/LICENSE"], {
         base: "external/bcmaps",
       })
-      .pipe(gulp.dest(dir + "web/cmaps")),
-    preprocessHTML("web/viewer.html", defines).pipe(gulp.dest(dir + "web")),
+      .pipe(gulp.dest(dir + "cmaps")),
+    preprocessHTML("web/index.html", defines).pipe(gulp.dest(dir)),
     preprocessCSS("web/viewer.css", "generic", defines, true)
       .pipe(
         postcss([
@@ -834,9 +833,9 @@ function buildGeneric(defines, dir) {
           autoprefixer(AUTOPREFIXER_CONFIG),
         ])
       )
-      .pipe(gulp.dest(dir + "web")),
+      .pipe(gulp.dest(dir)),
 
-    gulp.src("web/welcome.pdf").pipe(gulp.dest(dir + "web")),
+    gulp.src("web/welcome.pdf").pipe(gulp.dest(dir)),
   ]);
 }
 
@@ -868,11 +867,23 @@ gulp.task("browserify", () => {
     .pipe(gulp.dest("./web"));
 });
 
-gulp.task("del", () => {
+gulp.task("move_generic", () => {
+  console.log();
+  console.log("### Moving build files");
+  return gulp.src('./build/generic/**/*').pipe(gulp.dest('./build'));
+})
+
+gulp.task("unlink_ipc_build", (done) => {
   console.log();
   console.log("### Deleting ipc_electron.js");
-  return gulp_del("./web/ipc_electron_bundle.js");
+  fs.unlink("./web/ipc_electron_bundle.js", done);
 });
+
+gulp.task("unlink_generic", (done) => {
+  console.log();
+  console.log("### Removing old build files");
+  rimraf('./build/generic', done);
+})
 
 // Builds the generic production viewer that is only compatible with up-to-date
 // HTML5 browsers, which implement modern ECMAScript features.
@@ -889,8 +900,10 @@ gulp.task(
       var defines = builder.merge(DEFINES, { GENERIC: true });
       return buildGeneric(defines, GENERIC_DIR);
     },
-    "del",
-    "sandbox"
+    "sandbox",
+    "move_generic",
+    "unlink_ipc_build",
+    "unlink_generic"
   )
 );
 
@@ -1027,7 +1040,7 @@ function buildMinified(defines, dir) {
       })
       .pipe(gulp.dest(dir + "web/cmaps")),
 
-    preprocessHTML("web/viewer.html", defines).pipe(gulp.dest(dir + "web")),
+    preprocessHTML("web/index.html", defines).pipe(gulp.dest(dir + "web")),
     preprocessCSS("web/viewer.css", "minified", defines, true)
       .pipe(
         postcss([
@@ -1253,7 +1266,7 @@ gulp.task(
         })
         .pipe(gulp.dest(MOZCENTRAL_CONTENT_DIR + "web/cmaps")),
 
-      preprocessHTML("web/viewer.html", defines).pipe(
+      preprocessHTML("web/index.html", defines).pipe(
         gulp.dest(MOZCENTRAL_CONTENT_DIR + "web")
       ),
       preprocessCSS("web/viewer.css", "mozcentral", defines, true)
@@ -1322,7 +1335,7 @@ gulp.task(
         })
         .pipe(gulp.dest(CHROME_BUILD_CONTENT_DIR + "web/cmaps")),
 
-      preprocessHTML("web/viewer.html", defines).pipe(
+      preprocessHTML("web/index.html", defines).pipe(
         gulp.dest(CHROME_BUILD_CONTENT_DIR + "web")
       ),
       preprocessCSS("web/viewer.css", "chrome", defines, true)
@@ -1806,7 +1819,7 @@ gulp.task("gh-pages-prepare", function () {
 
   rimraf.sync(GH_PAGES_DIR);
 
-  // 'vfs' because web/viewer.html needs its BOM.
+  // 'vfs' because web/index.html needs its BOM.
   return merge([
     vfs
       .src(GENERIC_DIR + "**/*", { base: GENERIC_DIR, stripBOM: false })

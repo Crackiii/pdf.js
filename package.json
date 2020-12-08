@@ -5,7 +5,9 @@
   "build": {
     "appId": "com.vidy.app",
     "productName": "Vidy",
-    "directories": { "output": "build/release" },
+    "directories": {
+      "output": "build/release"
+    },
     "icon": "./Icon/vidycoin.png",
     "files": [
       "*.js",
@@ -91,7 +93,6 @@
   "dependencies": {
     "asar": "^3.0.3",
     "browserify": "^17.0.0",
-    "del": "^6.0.0",
     "vinyl-source-stream": "^2.0.0"
   }
 }
