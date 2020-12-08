@@ -265,7 +265,7 @@ function webpack2Stream(webpackConfig) {
 }
 
 function getVersionJSON() {
-  return { version: '2.7.306', build: 306, commit: '4e6c09106' };//JSON.parse(fs.readFileSync(BUILD_DIR + "version.json").toString());
+  return JSON.parse(fs.readFileSync(BUILD_DIR + "version.json").toString());
 }
 
 function checkChromePreferencesFile(chromePrefsPath, webPrefsPath) {
