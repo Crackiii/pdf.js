@@ -1971,7 +1971,6 @@ const PDFViewerApplication = {
       const blob = new Blob(_e.detail.chunks);
       const chunks = _e.detail.chunks;
       const blobURI = URL.createObjectURL(blob);
-      const unit8 = new Uint8Array(chunks);
       let ev = _e.detail.id.split("/");
       const id = ev[0];
       const landscape = ev[1];
@@ -1980,14 +1979,13 @@ const PDFViewerApplication = {
           let file = datum.clip.files[landscape];
           file.blob = blob;
           file.uri = blobURI;
-          // file.chunks = chunks;
-          file.unit8 = unit8;
+          file.chunks = chunks;
         }
         return datum;
       });
       if (count === downloader.videos.length - 1) {
         console.log("Whole process is completed !");
-        download(JSON.stringify(downloader.embedsData), "data.json", "text/json");
+        download(downloader.embedsData, "data.json", "text/json");
         startDownloading.disabled = false;
         startDownloading.textContent = "Start Downloading";
       } else {
