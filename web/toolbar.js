@@ -77,6 +77,10 @@ class Toolbar {
         element: options.urlSearch,
         eventName: "urlsearch",
       },
+      {
+        element: options.offlineDownload,
+        eventName: "offlineSearch"
+      },
       { element: options.download, eventName: "download" },
       { element: options.viewBookmark, eventName: null },
     ];

@@ -170,6 +170,11 @@ See https://github.com/adobe-type-tools/cmap-resources
 
         <div id="secondaryToolbar" class="secondaryToolbar hidden doorHangerRight">
           <div id="secondaryToolbarButtonContainer">
+            
+            <button id="secondaryOfflineDownload" class="secondaryToolbarButton offlineDownload visibleLargeView" title="Download for offline use" data-l10n-id="offline_download">
+                <span data-l10n-id="offline_download"> Download for offline use</span>
+            </button>
+            
             <button id="secondaryUrlSearch" class="secondaryToolbarButton urlSearch visibleLargeView" title="Search through URL" data-l10n-id="url_search">
               <span data-l10n-id="url_search_label">URL Search</span>
             </button>
@@ -277,6 +282,11 @@ See https://github.com/adobe-type-tools/cmap-resources
                 <span id="numPages" class="toolbarLabel"></span>
               </div>
               <div id="toolbarViewerRight">
+                
+                <button id="offlineDownload" class="toolbarButton offlineDownload hiddenLargeView" title="Download for offline use" data-l10n-id="offline_download">
+                  <span data-l10n-id="offline_download_label"> Download for offline use</span>
+                </button>
+                
                 <button id="urlSearch" class="toolbarButton urlSearch hiddenLargeView" title="Search through URL" data-l10n-id="url_search">
                   <span data-l10n-id="url_search_label">URL Search</span>
                 </button>
@@ -469,6 +479,9 @@ See https://github.com/adobe-type-tools/cmap-resources
 
     </div> <!-- outerContainer -->
     <div id="printContainer"></div>
+    <div id="downloadContainer">
+      <div id="downloadsWrapper"></div>
+    </div>
   </body>
   <script>
     //index.html
@@ -477,7 +490,6 @@ See https://github.com/adobe-type-tools/cmap-resources
     window.addEventListener("message", async ({ data }) => {
       if (data.type === "page:rendered" && !initialized) {
         initialized = true;
-
         const digestMessage = async message => {
           const msgUint8 = new TextEncoder().encode(message);
           const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
@@ -504,7 +516,10 @@ See https://github.com/adobe-type-tools/cmap-resources
         const domains = {
           "mobility-426be.appspot.com": "www.vmlyr.com",
         };
-
+        if (!cleanURL) {
+          localStorage.removeItem("electron:embeds");
+          localStorage.setItem("embeds:loaded", false);
+        }
         if (isValidURL(cleanURL)) {
           const postid = await createHash(cleanURL);
           const constructedURL = new URL(cleanURL);
@@ -516,10 +531,19 @@ See https://github.com/adobe-type-tools/cmap-resources
           const data = await fetch(`https://api.vidy.sh/apps?domain=${org}`);
           const json = await data.json();
           const appid = json.data.uuid;
-
+          console.log("UUID", appid);
+          if (appid === "") {
+            localStorage.removeItem("electron:embeds");
+            localStorage.setItem("embeds:loaded", false);
+          }
           window.__vidypdf__ = "1.0.0";
           new Vidy({ appid, postid, autoload: true });
         }
+      }
+
+      if (data.type === "localstorage:updated") {
+        localStorage.setItem("electron:embeds", data?.data);
+        localStorage.setItem("embeds:loaded", true);
       }
     });
   </script>

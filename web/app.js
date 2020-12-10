@@ -77,7 +77,7 @@ import { SecondaryToolbar } from "./secondary_toolbar.js";
 import { Toolbar } from "./toolbar.js";
 import { viewerCompatibilityParams } from "./viewer_compatibility.js";
 import { ViewHistory } from "./view_history.js";
-import { PDFUrlSearch } from "./pdf_url_search.js";
+import { Downloader } from "./offline_downloader.js";
 
 const DEFAULT_SCALE_DELTA = 1.1;
 const DISABLE_AUTO_FETCH_LOADING_BAR_TIMEOUT = 5000; // ms
@@ -1914,6 +1914,118 @@ const PDFViewerApplication = {
     }
   },
 
+  initDownloaderUI(el, dwrapper) {
+    dwrapper.innerHTML = "";
+    dwrapper.insertAdjacentHTML(
+      "afterbegin",
+      `
+        <div class="downloadsTop"></div>
+        <div id="downloads"></div>
+        <div class="downloadsBottom">
+          <button id="startDownloading">Start Downloading</button>
+          <button id="cancelDownloading">Cancel</button>
+        </div>
+      `
+    );
+
+    const downloader = new Downloader();
+    const startDownloading = document.getElementById("startDownloading");
+    const cancelDownloading = document.getElementById("cancelDownloading");
+    let count = 0;
+
+    downloader.initializeUI();
+    el.querySelector(
+      ".downloadsTop"
+    ).textContent = `${downloader.videos.length} videos to download`;
+
+    startDownloading.addEventListener("click", () => {
+      startDownloading.disabled = true;
+      startDownloading.textContent = "Downloading...";
+      downloader.initializeDownload();
+    });
+
+    cancelDownloading.addEventListener("click", () => {
+      downloader.el.innerHTML = "";
+      el.style.display = "none";
+    });
+
+    const download = (content, fileName, contentType) => {
+      var a = document.createElement("a");
+      var file = new Blob([content], { type: contentType });
+      a.href = URL.createObjectURL(file);
+      a.download = fileName;
+      a.click();
+    };
+
+    window.addEventListener("onValueChanged", _e => {
+      let e = [...downloader.el.querySelectorAll(".single-download")].find(
+        el => el.getAttribute("data-id") === _e.detail.id
+      );
+      e.querySelector(".progress-text").textContent =
+        " - " + _e.detail.progress + "%";
+      e.querySelector(".progress-bar").style.width =
+        parseInt(_e.detail.progress) + "%";
+    });
+
+    window.addEventListener("onDownload", _e => {
+      const blob = new Blob(_e.detail.chunks);
+      const chunks = _e.detail.chunks;
+      const blobURI = URL.createObjectURL(blob);
+      const unit8 = new Uint8Array(chunks);
+      let ev = _e.detail.id.split("/");
+      const id = ev[0];
+      const landscape = ev[1];
+      downloader.embedsData.data = downloader.embedsData.data.map(datum => {
+        if (datum.clip.id === id) {
+          let file = datum.clip.files[landscape];
+          file.blob = blob;
+          file.uri = blobURI;
+          // file.chunks = chunks;
+          file.unit8 = unit8;
+        }
+        return datum;
+      });
+      if (count === downloader.videos.length - 1) {
+        console.log("Whole process is completed !");
+        download(JSON.stringify(downloader.embedsData), "data.json", "text/json");
+        startDownloading.disabled = false;
+        startDownloading.textContent = "Start Downloading";
+      } else {
+        count++;
+      }
+    });
+  },
+
+  initDownloader() {
+    let el = document.getElementById("downloadContainer");
+    const dwrapper = el.querySelector("#downloadsWrapper");
+    const display = () => {
+      el.style.display = el.style.display === "flex" ? "none" : "flex";
+      return el.style.display;
+    };
+    if (display() === "flex") {
+      if (localStorage.getItem("embeds:loaded") === "true") {
+        this.initDownloaderUI(el, dwrapper);
+      } else {
+        dwrapper.innerHTML = "";
+        dwrapper.insertAdjacentHTML(
+          "afterbegin",
+          `<div id="downloads-loader">
+          <img src="./images/spinner.gif" />
+        </div>`
+        );
+      }
+    }
+
+    window.addEventListener("message", ({ data }) => {
+      if (data.type === "localstorage:updated") {
+        let el = document.getElementById("downloadContainer");
+        const dwrapper = el.querySelector("#downloadsWrapper");
+        this.initDownloaderUI(el, dwrapper);
+      }
+    });
+  },
+
   triggerPrinting() {
     if (!this.supportsPrinting) {
       return;
@@ -1942,7 +2054,7 @@ const PDFViewerApplication = {
     eventBus._on("presentationmodechanged", webViewerPresentationModeChanged);
     eventBus._on("presentationmode", webViewerPresentationMode);
     eventBus._on("urlsearch", webViewerUrlSearch);
-    eventBus._on("pdfurl", webViewerpdfURL);
+    eventBus._on("offlineSearch", webViewerOfflineDownload);
     eventBus._on("print", webViewerPrint);
     eventBus._on("download", webViewerDownload);
     eventBus._on("save", webViewerSave);
@@ -2030,7 +2142,7 @@ const PDFViewerApplication = {
     eventBus._off("namedaction", webViewerNamedAction);
     eventBus._off("presentationmodechanged", webViewerPresentationModeChanged);
     eventBus._off("presentationmode", webViewerPresentationMode);
-    eventBus._off("pdfurl", webViewerpdfURL);
+    eventBus._off("offlineSearch", webViewerOfflineDownload);
     eventBus._off("print", webViewerPrint);
     eventBus._off("download", webViewerDownload);
     eventBus._off("save", webViewerSave);
@@ -2605,12 +2717,11 @@ if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
 function webViewerPresentationMode() {
   PDFViewerApplication.requestPresentationMode();
 }
-
 function webViewerUrlSearch() {
   PDFViewerApplication.urlSearch();
 }
-function webViewerpdfURL(e) {
-  PDFViewerApplication.pdfURL(e);
+function webViewerOfflineDownload(e) {
+  PDFViewerApplication.initDownloader();
 }
 function webViewerPrint() {
   PDFViewerApplication.triggerPrinting();

@@ -70,6 +70,10 @@ class SecondaryToolbar {
         eventName: "urlsearch",
         close: true,
       },
+      {
+        element: options.secondaryOfflineDownload,
+        eventName: "offlineSearch"
+      },
       { element: options.openFileButton, eventName: "openfile", close: true },
       { element: options.printButton, eventName: "print", close: true },
       { element: options.downloadButton, eventName: "download", close: true },

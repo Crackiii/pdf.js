@@ -86,6 +86,7 @@ function getViewerConfiguration() {
       viewFind: document.getElementById("viewFind"),
       openFile: document.getElementById("openFile"),
       urlSearch: document.getElementById("urlSearch"),
+      offlineDownload: document.getElementById("offlineDownload"),
       print: document.getElementById("print"),
       presentationModeButton: document.getElementById("presentationMode"),
       download: document.getElementById("download"),
@@ -101,6 +102,7 @@ function getViewerConfiguration() {
         "secondaryPresentationMode"
       ),
       secondaryUrlSearch: document.getElementById("secondaryUrlSearch"),
+      secondaryOfflineDownload: document.getElementById("secondaryOfflineDownload"),
       openFileButton: document.getElementById("secondaryOpenFile"),
       printButton: document.getElementById("secondaryPrint"),
       downloadButton: document.getElementById("secondaryDownload"),
@@ -202,8 +204,8 @@ function getViewerConfiguration() {
 
 async function webViewerLoad() {
   const config = getViewerConfiguration();
-
-  //
+  localStorage.removeItem('electron:embeds');
+  localStorage.setItem('embeds:loaded', false);
   const isElectron =
     navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
   if (isElectron) {
