@@ -1932,6 +1932,7 @@ const PDFViewerApplication = {
     const startDownloading = document.getElementById("startDownloading");
     const cancelDownloading = document.getElementById("cancelDownloading");
     let count = 0;
+    let blobs = [];
 
     downloader.initializeUI();
     el.querySelector(
@@ -1949,14 +1950,6 @@ const PDFViewerApplication = {
       el.style.display = "none";
     });
 
-    const download = (content, fileName, contentType) => {
-      var a = document.createElement("a");
-      var file = new Blob([content], { type: contentType });
-      a.href = URL.createObjectURL(file);
-      a.download = fileName;
-      a.click();
-    };
-
     window.addEventListener("onValueChanged", _e => {
       const downloader = new Downloader();
       let e = [...downloader.el.querySelectorAll(".single-download")].find(
@@ -1970,29 +1963,41 @@ const PDFViewerApplication = {
 
     window.addEventListener("onDownload", _e => {
       const blob = new Blob(_e.detail.chunks);
-      const chunks = _e.detail.chunks;
-      const blobURI = URL.createObjectURL(blob);
       let ev = _e.detail.id.split("/");
       const id = ev[0];
       const landscape = ev[1];
       downloader.embedsData.data = downloader.embedsData.data.map(datum => {
         if (datum.clip.id === id) {
           let file = datum.clip.files[landscape];
-          file.blob = blob;
-          file.uri = blobURI;
-          file.chunks = chunks;
+          file.offline_name =
+            _e.detail.id.replace(/\//g, "-") +
+            "." +
+            file.mimetype.split("/")[1];
+          blobs.push({
+            blob,
+            type: file.mimetype.split("/")[1],
+            id: _e.detail.id.replace(/\//g, "-"),
+          });
         }
         return datum;
       });
+
       if (count === downloader.videos.length - 1) {
-        console.log("Whole process is completed !");
-        download(
-          JSON.stringify(downloader.embedsData),
-          "data.json",
-          "text/json"
-        );
-        startDownloading.disabled = false;
-        startDownloading.textContent = "Start Downloading";
+        startDownloading.textContent = "Zipping files please wait...";
+        startDownloading.style.background = "#4caf50";
+        const zip = JSZip();
+        zip.file(`data.json`, JSON.stringify(downloader.embedsData));
+        blobs.forEach((_b, i) => {
+          zip.file(`${_b.id}.${_b.type}`, _b.blob);
+        });
+        zip
+          .generateAsync({ type: "blob" })
+          .then(zipFile => {
+            const currentDate = new Date().getTime();
+            const fileName = `Embeds-${currentDate}.zip`;
+            return saveAs(zipFile, fileName);
+          })
+          .then(_ => (el.style.display = "none"));
       } else {
         count++;
       }

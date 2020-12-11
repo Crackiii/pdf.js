@@ -44,15 +44,6 @@ class Downloader {
     );
   }
 
-  // _chunksIntoSingle() {
-  //   let chunksAll = new Uint8Array(this.receivedLength);
-  //   let position = 0;
-  //   for(let chunk of chunks) {
-  //     chunksAll.set(chunk, position);
-  //     position += chunk.length;
-  //   }
-  // }
-
   initializeDownload() {
     this._addDownloadState();
     this.videos.map(async video => {
