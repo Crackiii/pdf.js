@@ -1,11 +1,4 @@
 class Downloader {
-  embedsData = null;
-  videoFiles = null;
-  videoData = null;
-  videoURLs = null;
-  el = null;
-  videos = null;
-
   constructor() {
     this.embedsData = JSON.parse(localStorage.getItem("electron:embeds"));
     this.videoFiles = this.embedsData.data.map(datum => datum.clip.files);
