@@ -72,7 +72,12 @@ class SecondaryToolbar {
       },
       {
         element: options.secondaryOfflineDownload,
-        eventName: "offlineSearch"
+        eventName: "offlineSearch",
+      },
+      {
+        element: options.secondaryUserLogin,
+        eventName: "userlogin",
+        close: true,
       },
       { element: options.openFileButton, eventName: "openfile", close: true },
       { element: options.printButton, eventName: "print", close: true },

@@ -87,6 +87,7 @@ function getViewerConfiguration() {
       openFile: document.getElementById("openFile"),
       urlSearch: document.getElementById("urlSearch"),
       offlineDownload: document.getElementById("offlineDownload"),
+      userLogin: document.getElementById("userLogin"),
       print: document.getElementById("print"),
       presentationModeButton: document.getElementById("presentationMode"),
       download: document.getElementById("download"),
@@ -102,7 +103,10 @@ function getViewerConfiguration() {
         "secondaryPresentationMode"
       ),
       secondaryUrlSearch: document.getElementById("secondaryUrlSearch"),
-      secondaryOfflineDownload: document.getElementById("secondaryOfflineDownload"),
+      secondaryOfflineDownload: document.getElementById(
+        "secondaryOfflineDownload"
+      ),
+      secondaryUserLogin: document.getElementById("secondaryUserLogin"),
       openFileButton: document.getElementById("secondaryOpenFile"),
       printButton: document.getElementById("secondaryPrint"),
       downloadButton: document.getElementById("secondaryDownload"),
@@ -204,8 +208,8 @@ function getViewerConfiguration() {
 
 async function webViewerLoad() {
   const config = getViewerConfiguration();
-  localStorage.removeItem('electron:embeds');
-  localStorage.setItem('embeds:loaded', false);
+  localStorage.removeItem("electron:embeds");
+  localStorage.setItem("embeds:loaded", false);
   const isElectron =
     navigator.userAgent.toLowerCase().indexOf(" electron/") > -1;
   if (isElectron) {
@@ -244,8 +248,8 @@ async function webViewerLoad() {
       }
     });
   } else {
-    document.getElementById('toolbarViewerRight').removeChild(config.toolbar.urlSearch);
-    document.getElementById('secondaryToolbarButtonContainer').removeChild(config.secondaryToolbar.secondaryUrlSearch);
+    // document.getElementById('toolbarViewerRight').removeChild(config.toolbar.urlSearch);
+    // document.getElementById('secondaryToolbarButtonContainer').removeChild(config.secondaryToolbar.secondaryUrlSearch);
   }
 
   if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")) {

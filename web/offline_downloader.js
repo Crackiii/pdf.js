@@ -47,7 +47,7 @@ class Downloader {
 
   _addDownloadState() {
     [...this.el.querySelectorAll(".progress-text")].forEach(
-      el => (el.textContent = " - Downloading")
+      el => (el.textContent = " - Waiting")
     );
   }
 
@@ -120,6 +120,5 @@ class Downloader {
     return uuid;
   }
 }
-
 
 export { Downloader };

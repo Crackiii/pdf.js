@@ -79,7 +79,11 @@ class Toolbar {
       },
       {
         element: options.offlineDownload,
-        eventName: "offlineSearch"
+        eventName: "offlineSearch",
+      },
+      {
+        element: options.userLogin,
+        eventName: "userlogin",
       },
       { element: options.download, eventName: "download" },
       { element: options.viewBookmark, eventName: null },

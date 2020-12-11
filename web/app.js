@@ -1958,6 +1958,7 @@ const PDFViewerApplication = {
     };
 
     window.addEventListener("onValueChanged", _e => {
+      const downloader = new Downloader();
       let e = [...downloader.el.querySelectorAll(".single-download")].find(
         el => el.getAttribute("data-id") === _e.detail.id
       );
@@ -1985,7 +1986,11 @@ const PDFViewerApplication = {
       });
       if (count === downloader.videos.length - 1) {
         console.log("Whole process is completed !");
-        download(downloader.embedsData, "data.json", "text/json");
+        download(
+          JSON.stringify(downloader.embedsData),
+          "data.json",
+          "text/json"
+        );
         startDownloading.disabled = false;
         startDownloading.textContent = "Start Downloading";
       } else {
@@ -2024,6 +2029,10 @@ const PDFViewerApplication = {
     });
   },
 
+  userLogin() {
+    window.postMessage({ type: "lens:account" }, "*");
+  },
+
   triggerPrinting() {
     if (!this.supportsPrinting) {
       return;
@@ -2053,6 +2062,7 @@ const PDFViewerApplication = {
     eventBus._on("presentationmode", webViewerPresentationMode);
     eventBus._on("urlsearch", webViewerUrlSearch);
     eventBus._on("offlineSearch", webViewerOfflineDownload);
+    eventBus._on("userlogin", webViewerUserLogin);
     eventBus._on("print", webViewerPrint);
     eventBus._on("download", webViewerDownload);
     eventBus._on("save", webViewerSave);
@@ -2141,6 +2151,7 @@ const PDFViewerApplication = {
     eventBus._off("presentationmodechanged", webViewerPresentationModeChanged);
     eventBus._off("presentationmode", webViewerPresentationMode);
     eventBus._off("offlineSearch", webViewerOfflineDownload);
+    eventBus._off("userlogin", webViewerUserLogin);
     eventBus._off("print", webViewerPrint);
     eventBus._off("download", webViewerDownload);
     eventBus._off("save", webViewerSave);
@@ -2227,6 +2238,9 @@ if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
     "http://mozilla.github.io",
     "https://mozilla.github.io",
     "http://localhost:8888",
+    "http://127.0.0.1:8887",
+    "https://pdf.vidy.sh",
+    "https://pdf.vidy.com",
   ];
   validateFileURL = function (file) {
     if (file === undefined) {
@@ -2234,7 +2248,6 @@ if (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) {
     }
     try {
       const viewerOrigin = new URL(window.location.href).origin || "null";
-      console.log(viewerOrigin);
       if (HOSTED_VIEWER_ORIGINS.includes(viewerOrigin)) {
         // Hosted or local viewer, allow for any file locations
         return;
@@ -2720,6 +2733,9 @@ function webViewerUrlSearch() {
 }
 function webViewerOfflineDownload(e) {
   PDFViewerApplication.initDownloader();
+}
+function webViewerUserLogin() {
+  PDFViewerApplication.userLogin();
 }
 function webViewerPrint() {
   PDFViewerApplication.triggerPrinting();

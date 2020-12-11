@@ -125,14 +125,17 @@ class PDFFetchStreamReader {
 
     const l = location.href.toString();
     const i = l.lastIndexOf("file=");
-    const sUrl = l.substr(i + 5);
+    const sUrl = i !== -1 ? l.substr(i + 5) : l + "welcome.pdf";
     const host =
       location.href.split("?")[0].indexOf("localhost") === -1
         ? "https://pdf-proxy.vidy.sh"
         : "http://localhost:8003";
-    const url = /(localhost)/gi.test(source.url)
+    let url = /(localhost)/gi.test(source.url)
       ? source.url
-      : `${host}/pdf-cors?file=${sUrl}`;
+      : i !== -1
+      ? `${host}/pdf-cors?file=${sUrl}`
+      : sUrl;
+
     const userAgent = navigator.userAgent.toLowerCase();
     const isElectron = userAgent.indexOf(" electron/") > -1;
     fetch(
